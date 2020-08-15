@@ -3,8 +3,33 @@ import tempfile
 import json
 import argparse
 import sys
+from json import JSONDecodeError
 
-DEBUG = True
+DEBUG = False
+
+
+def load_data():
+
+	storage_path = os.path.join(tempfile.gettempdir(), 'storage.data')
+
+	# storage = open(storage_path, "w") # only to create the file for the first time the program runs
+	# storage.close()
+	if (not os.path.exists(storage_path)):
+		data = dict() # returning empty dict
+		return data
+	else:
+		with open(storage_path, "r") as storage: # only works if file exists and not empty, otherwise fails
+			
+			try:
+				data = json.load(storage) # fix problem when file is empty
+			except JSONDecodeError:
+				data = dict() # returning empty dict
+		
+		return data
+
+def print_storage_file():
+	storage_path = os.path.join(tempfile.gettempdir(), 'storage.data')
+	print(storage_path)
 
 
 def key_check(key):
@@ -19,9 +44,10 @@ def value_check(value):
 	else:
 		return False
 
-def print_list(list):
-	for element in list:
-		print(element)
+def print_list(data_list):
+	# for x in range(len(data_list)):
+	# 	print(data_list[x])
+	print(*data_list, sep=", ")
 
 def add_to_storage(data, key, value):
 
@@ -36,34 +62,25 @@ def add_to_storage(data, key, value):
 			print("New list created by key ", key, "added element with value: ", value)
 
 
-		storage_path = os.path.join(tempfile.gettempdir(), 'storage.data')
-
-		with open(storage_path, "w") as debug_storage:
-			json.dump(data, debug_storage)
-
-
-def retrieve_from_storage(key):
-
-
 	storage_path = os.path.join(tempfile.gettempdir(), 'storage.data')
 
-	with open(storage_path, "r") as debug_storage:
-		data = json.load(debug_storage)
+	with open(storage_path, "w") as storage:
+		json.dump(data, storage)
 
+
+def retrieve_from_storage(data, key):
+
+	if DEBUG:
+		print("Extracted data: ", data)
+
+	if key in data:
+		#print("Obtained value: ")
+		print_list(data[key])
+
+	else:
 		if DEBUG:
-			print("Extracted data: ", data)
-
-		if key in data:
-
-			if DEBUG:
-				print("Obtained value: ")
-				print_list(data[key])
-
-			return data[key]
-		else:
-
-			if DEBUG:
-				print("No data corresponding to this key")
+			print("No data corresponding to this key")
+		print("") # empty string if no values were found by key
 
 
 
@@ -79,7 +96,8 @@ def get_arguments(data): # data is a dictionary which containes key-value inform
 
 	ARGS_CHK = False # flag for determining whether the input of arguments was correct
 
-	print("\n\n\n") # for easier log view
+	if DEBUG:
+		print("\n\n\n") # for easier log view
 
 	if DEBUG:
 
@@ -118,7 +136,7 @@ def get_arguments(data): # data is a dictionary which containes key-value inform
 			print("key passed")
 			print("key: ", args.key, "\n\n\n")
 
-		retrieve_from_storage(args.key)
+		retrieve_from_storage(data, args.key)
 
 	elif (args.key == None and args.value):
 		ARGS_CHK = False # input not OK
@@ -132,14 +150,16 @@ def get_arguments(data): # data is a dictionary which containes key-value inform
 		print("Error: incorrect input. Key option expected", "\n\n\n")
 
 	if ARGS_CHK == False:
-		print("Exit with code 1", "\n\n\n")
+		print("Exit with error code 1", "\n\n\n")
 		sys.exit(1)
 
 
 def main(): #main function
 
-	data = dict()
-	get_arguments(data)
+	if DEBUG:
+		print_storage_file()
+	data = load_data() # load existing data from file
+	get_arguments(data) # get arguments from input
 
 
 
@@ -147,4 +167,3 @@ def main(): #main function
 main() #start of main function
 
 
-#with open(storage_path, "w") as file:
