@@ -19,26 +19,58 @@ def value_check(value):
 	else:
 		return False
 
-def add_to_storage(key, value):
+def print_list(list):
+	for element in list:
+		print(element)
 
-	data = {key:value}
+def add_to_storage(data, key, value):
 
-	if DEBUG:
-		with open ("debug_storage.data", "a") as debug_storage:
+	if key in data:
+		data[key].append(value) # appending value to existing list, otherwise creating new list at given key
+		if DEBUG:
+			print("Value ", value, "appended to list by key ", key)
+	else:
+		data[key] = list() # using list data structure to store multiple values at one key
+		data[key].append(value)
+		if DEBUG:
+			print("New list created by key ", key, "added element with value: ", value)
+
+
+		storage_path = os.path.join(tempfile.gettempdir(), 'storage.data')
+
+		with open(storage_path, "w") as debug_storage:
 			json.dump(data, debug_storage)
 
-	#storage_path = os.path.join(tempfile.gettempdir(), 'storage.data')
 
-	#with open(storage_path, 'w') as file:
-	#	json.dump(data, file)
+def retrieve_from_storage(key):
 
 
-#def retrieve_from_storage(key):
+	storage_path = os.path.join(tempfile.gettempdir(), 'storage.data')
+
+	with open(storage_path, "r") as debug_storage:
+		data = json.load(debug_storage)
+
+		if DEBUG:
+			print("Extracted data: ", data)
+
+		if key in data:
+
+			if DEBUG:
+				print("Obtained value: ")
+				print_list(data[key])
+
+			return data[key]
+		else:
+
+			if DEBUG:
+				print("No data corresponding to this key")
 
 
 
 
-def get_arguments():
+def get_arguments(data): # data is a dictionary which containes key-value information
+
+
 	parser = argparse.ArgumentParser()
 	parser.add_argument("--key")
 	parser.add_argument("--value")
@@ -77,7 +109,7 @@ def get_arguments():
 			print("key and value passed")
 			print("key: ", args.key, "value: ", args.value, "\n\n\n")
 
-		add_to_storage(args.key, args.value)
+		add_to_storage(data, args.key, args.value)
 
 	elif (args.key and args.value == None):
 		ARGS_CHK = True # input OK
@@ -99,17 +131,15 @@ def get_arguments():
 
 		print("Error: incorrect input. Key option expected", "\n\n\n")
 
-	if ARGS_CHK == True:
-		print("Processing input...", "\n\n\n")
-	else:
-
+	if ARGS_CHK == False:
 		print("Exit with code 1", "\n\n\n")
 		sys.exit(1)
 
 
 def main(): #main function
 
-	get_arguments()
+	data = dict()
+	get_arguments(data)
 
 
 
