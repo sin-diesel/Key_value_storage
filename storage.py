@@ -7,6 +7,24 @@ import sys
 DEBUG = True
 
 
+def load_data():
+
+	storage_path = os.path.join(tempfile.gettempdir(), 'storage.data')
+
+	if (not os.path.exists(storage_path)):
+		file = open(storage_path, "x")
+		file.close()
+		return dict() # returning empty dict
+
+	else:
+		with open(storage_path, "r") as storage:
+		return data
+
+def print_storage_file():
+	storage_path = os.path.join(tempfile.gettempdir(), 'storage.data')
+	print(storage_path)
+
+
 def key_check(key):
 	if (arguments.key):
 		return True
@@ -21,7 +39,7 @@ def value_check(value):
 
 def print_list(list):
 	for element in list:
-		print(element)
+		print(element, ' ')
 
 def add_to_storage(data, key, value):
 
@@ -36,16 +54,20 @@ def add_to_storage(data, key, value):
 			print("New list created by key ", key, "added element with value: ", value)
 
 
-		storage_path = os.path.join(tempfile.gettempdir(), 'storage.data')
+	storage_path = os.path.join(tempfile.gettempdir(), 'storage.data')
 
-		with open(storage_path, "w") as debug_storage:
-			json.dump(data, debug_storage)
+	with open(storage_path, "w") as debug_storage:
+		json.dump(data, debug_storage)
 
 
 def retrieve_from_storage(key):
 
 
+
 	storage_path = os.path.join(tempfile.gettempdir(), 'storage.data')
+	if (not os.path.exists(storage_path)):
+		print("")
+		exit()
 
 	with open(storage_path, "r") as debug_storage:
 		data = json.load(debug_storage)
@@ -55,15 +77,14 @@ def retrieve_from_storage(key):
 
 		if key in data:
 
-			if DEBUG:
-				print("Obtained value: ")
-				print_list(data[key])
+			#print("Obtained value: ")
+			print_list(data[key])
 
-			return data[key]
 		else:
 
 			if DEBUG:
 				print("No data corresponding to this key")
+			print("") # empty string if no values were found by key
 
 
 
@@ -79,7 +100,8 @@ def get_arguments(data): # data is a dictionary which containes key-value inform
 
 	ARGS_CHK = False # flag for determining whether the input of arguments was correct
 
-	print("\n\n\n") # for easier log view
+	if DEBUG:
+		print("\n\n\n") # for easier log view
 
 	if DEBUG:
 
@@ -132,14 +154,16 @@ def get_arguments(data): # data is a dictionary which containes key-value inform
 		print("Error: incorrect input. Key option expected", "\n\n\n")
 
 	if ARGS_CHK == False:
-		print("Exit with code 1", "\n\n\n")
+		print("Exit with error code 1", "\n\n\n")
 		sys.exit(1)
 
 
 def main(): #main function
 
-	data = dict()
-	get_arguments(data)
+	if DEBUG:
+		print_storage_file()
+	data = load_data() # load existing data from file
+	get_arguments(data) # get arguments from input
 
 
 
@@ -147,4 +171,3 @@ def main(): #main function
 main() #start of main function
 
 
-#with open(storage_path, "w") as file:
