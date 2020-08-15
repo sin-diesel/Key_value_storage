@@ -3,21 +3,29 @@ import tempfile
 import json
 import argparse
 import sys
+from json import JSONDecodeError
 
-DEBUG = True
+DEBUG = False
 
 
 def load_data():
 
 	storage_path = os.path.join(tempfile.gettempdir(), 'storage.data')
 
-	storage = open(storage_path, "w") # only to create the file for the first time the program runs
-	storage.close()
-
-
-	with open(storage_path, "r") as storage: # only works if file exists and not empty, otherwise fails
-		data = json.load(storage) # fix problem when file is empty
-	return data
+	# storage = open(storage_path, "w") # only to create the file for the first time the program runs
+	# storage.close()
+	if (not os.path.exists(storage_path)):
+		data = dict() # returning empty dict
+		return data
+	else:
+		with open(storage_path, "r") as storage: # only works if file exists and not empty, otherwise fails
+			
+			try:
+				data = json.load(storage) # fix problem when file is empty
+			except JSONDecodeError:
+				data = dict() # returning empty dict
+		
+		return data
 
 def print_storage_file():
 	storage_path = os.path.join(tempfile.gettempdir(), 'storage.data')
@@ -36,9 +44,10 @@ def value_check(value):
 	else:
 		return False
 
-def print_list(list):
-	for element in list:
-		print(element, ' ')
+def print_list(data_list):
+	# for x in range(len(data_list)):
+	# 	print(data_list[x])
+	print(*data_list, sep=", ")
 
 def add_to_storage(data, key, value):
 
