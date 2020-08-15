@@ -11,14 +11,13 @@ def load_data():
 
 	storage_path = os.path.join(tempfile.gettempdir(), 'storage.data')
 
-	if (not os.path.exists(storage_path)):
-		file = open(storage_path, "x")
-		file.close()
-		return dict() # returning empty dict
+	storage = open(storage_path, "w") # only to create the file for the first time the program runs
+	storage.close()
 
-	else:
-		with open(storage_path, "r") as storage:
-		return data
+
+	with open(storage_path, "r") as storage: # only works if file exists and not empty, otherwise fails
+		data = json.load(storage) # fix problem when file is empty
+	return data
 
 def print_storage_file():
 	storage_path = os.path.join(tempfile.gettempdir(), 'storage.data')
@@ -56,35 +55,23 @@ def add_to_storage(data, key, value):
 
 	storage_path = os.path.join(tempfile.gettempdir(), 'storage.data')
 
-	with open(storage_path, "w") as debug_storage:
-		json.dump(data, debug_storage)
+	with open(storage_path, "w") as storage:
+		json.dump(data, storage)
 
 
-def retrieve_from_storage(key):
+def retrieve_from_storage(data, key):
 
+	if DEBUG:
+		print("Extracted data: ", data)
 
+	if key in data:
+		#print("Obtained value: ")
+		print_list(data[key])
 
-	storage_path = os.path.join(tempfile.gettempdir(), 'storage.data')
-	if (not os.path.exists(storage_path)):
-		print("")
-		exit()
-
-	with open(storage_path, "r") as debug_storage:
-		data = json.load(debug_storage)
-
+	else:
 		if DEBUG:
-			print("Extracted data: ", data)
-
-		if key in data:
-
-			#print("Obtained value: ")
-			print_list(data[key])
-
-		else:
-
-			if DEBUG:
-				print("No data corresponding to this key")
-			print("") # empty string if no values were found by key
+			print("No data corresponding to this key")
+		print("") # empty string if no values were found by key
 
 
 
@@ -140,7 +127,7 @@ def get_arguments(data): # data is a dictionary which containes key-value inform
 			print("key passed")
 			print("key: ", args.key, "\n\n\n")
 
-		retrieve_from_storage(args.key)
+		retrieve_from_storage(data, args.key)
 
 	elif (args.key == None and args.value):
 		ARGS_CHK = False # input not OK
